@@ -1,6 +1,6 @@
 *, *::before, *::after {
     box-sizing: border-box;
-    font-family: Gotham Rounded;
+    font-family: Arial, Helvetica,;
 }
 
 
@@ -23,10 +23,10 @@ body {
     color: white;
 }
 
-.btn-grid {
+.button, .quiz {
     display: grid;
     background-color: darkorchid;
-    border: 1px solid black;
+    border: 5px solid black;
     border-radius: 5px;
     padding: 5px 10px;
     color: darkorchid;
@@ -37,12 +37,10 @@ body {
     border-color: black
 }
 
-.btn.correct {
 
-}
 
-.btn.wrong  {
-
+header {
+    align-items: center;
 }
 
 .start-btn, .next-btn {
@@ -50,12 +48,16 @@ body {
     font-weight: bold;
     padding: 10px 20px;
     background-color: darkorchid;
+    border-radius: 10px;
+    color: white;
+    
 }
 
 .controls {
-    display: flex;
+    display: grid;
     justify-content: center;
     align-items: center;
+    text-align: center;
 }
 
 .hide {

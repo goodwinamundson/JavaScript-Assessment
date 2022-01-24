@@ -1,110 +1,158 @@
-const startButton = document.getElementById('start-btn')
-const nextButton = document.getElementById('next-btn')
-const questionContainerElement = document.getElementById('question-container')
-const questionElement = document.getElementById('question')
-const answerButtonsElement = document.getElementById('answer-buttons')
 
-
-
-startButton.addEventListener('click', startQuiz)
-nextButton.addEventListener('click', () => {
-    currentQuestionsIndex++
-    setNextQuestion()
-})
-
-function startQuiz () {
-    console.log('Started')
-    startButton.classList.add('hide')
-    questionsIndex = 0
-    questionContainerElement.classList.remove('hide')
-    setNextQuestion()
-}
-
-function setNextQuestion(){
-    resetState()
-    showQuestion()
-}
-
-function showQuestion(question) {
-    questionElement.innerText = question
-    question.answers.forEach(answer => {
-        const button = document.createElement('button')
-        button.innerText = answer.text
-        button.classList.add('btn')
-        if (answer.correct) {
-            button.dataset.correct = answer.correct
-        }
-        button.addEventListener('click', selectAnswer)
-        answerButtonsElement.appendChild(button)
-    })
-}
-function resetState() {
-    clearStatusClass(document.body)
-    nextButton.classList.add('hide')
-    while (answerButtonsElement.firstChild){
-    answerButtonsElement.removeChild(answerButtonsElement.firstChild)
-    }
-}
-function selectAnswer(e) {
-    const selectedButton = e.target
-    const correct = selectedButton.dataset.correct
-    setStatusClass(document.body, correct)
-    Array.from(answerButtonsElement.children).forEach(button => {
-        setStatusClass(button, button.dataset.correct)
-    })
-    if (shuffledQuestions.length > currentQuestionIndex + 1) {
-        nextButton.classList.remove('hide')
-      } else {
-        startButton.innerText = 'Restart'
-        startButton.classList.remove('hide')
+(function() {
+    var questions = [{
+      question: "Commonly used data types do not include:",
+      choices: ['strings', 'booleans', 'alerts', 'numbers'],
+      correctAnswer: 3
+    }, {
+      question: "The condition in an if/else statement is enclosed with ____.",
+      choices: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
+      correctAnswer: 3
+    }, {
+      question: "Arrays in Javascript can be used to store____.",
+      choices: ['numbers and strings', 'other arrays', 'booleans', 'all of the above'],
+      correctAnswer: 4
+    }, {
+      question: "String Values must be enclosed within _____ when being assigned to variables.",
+      choices: ['commas', 'curly brackets', 'quotes', 'parenthesis'],
+      correctAnswer: 2
+    }, {
+      question: "A very useful tool used during development debugging for printing content to the debugger is:",
+      choices: ['JavaScript', 'terminal/bash', 'for loops', 'console.log'],
+      correctAnswer: 3
+    }];
+    
+    var questionCounter = 0; 
+    var selections = []; //Array containing user choices
+    var quiz = $('#quiz'); //Quiz div object
+    
+    // Display initial question
+    displayNext();
+    
+    // Click handler for the 'next' button
+    $('#next').on('click', function (e) {
+      e.preventDefault();
+      
+      // Suspend click listener during fade animation
+      if(quiz.is(':animated')) {        
+        return false;
       }
-}
-
-function setStatusClass(element, correct) {
-    clearStatusClass(element)
-    if (correct) {
-        element.classList.add('correct')
-    } else {
-        element.classList.add('wrong')
+      choose();
+      
+      // If no user selection, progress is stopped
+      if (isNaN(selections[questionCounter])) {
+        alert('Please make a selection!');
+      } else {
+        questionCounter++;
+        displayNext();
+      }
+    });
+    
+    
+    // Click handler for the 'Start Over' button
+    $('#start').on('click', function (e) {
+      e.preventDefault();
+      
+      if(quiz.is(':animated')) {
+        return false;
+      }
+      questionCounter = 0;
+      selections = [];
+      displayNext();
+      $('#start').hide();
+    });
+    
+    // Animates buttons on hover
+    $('.button').on('mouseenter', function () {
+      $(this).addClass('active');
+    });
+    $('.button').on('mouseleave', function () {
+      $(this).removeClass('active');
+    });
+    
+    // Creates and returns the div that contains the questions and 
+    // the answer selections
+    function createQuestionElement(index) {
+      var qElement = $('<div>', {
+        id: 'question'
+      });
+      
+      var header = $('<h2>Question ' + (index + 1) + ':</h2>');
+      qElement.append(header);
+      
+      var question = $('<p>').append(questions[index].question);
+      qElement.append(question);
+      
+      var radioButtons = createRadios(index);
+      qElement.append(radioButtons);
+      
+      return qElement;
     }
-}
-
-function clearStatusClass(element) {
-    element.classList.remove('correct')
-    element.classList.remove('wrong')
-  }
-
-const questions = [
-    {
-        question: 'what is 2+2',
-        answers: [
-            { text: '3', correct:true },
-            { text: '22', correct: false }
-        ],
-        question: 'what is 2+2',
-        answers: [
-            { text: '3', correct:true },
-            { text: '22', correct: false }
-        ],
-        question: 'what is 2+2',
-        answers: [
-            { text: '3', correct:true },
-            { text: '22', correct: false }
-        ],
-        question: 'what is 2+2',
-        answers: [
-            { text: '3', correct:true },
-            { text: '22', correct: false }
-        ],
-        question: 'what is 2+2',
-        answers: [
-            { text: '3', correct:true },
-            { text: '22', correct: false }
-        ],
-        question: 'what is 2+2',
-        answers: [
-            { text: '3', correct:true },
-            { text: '22', correct: false }
-        ]
+    
+    // Creates a list of the answer choices as radio inputs
+    function createRadios(index) {
+      var radioList = $('<ul>');
+      var item;
+      var input = '';
+      for (var i = 0; i < questions[index].choices.length; i++) {
+        item = $('<li>');
+        input = '<input type="radio" name="answer" value=' + i + ' />';
+        input += questions[index].choices[i];
+        item.append(input);
+        radioList.append(item);
+      }
+      return radioList;
     }
-]
+    
+    // Reads the user selection and pushes the value to an array
+    function choose() {
+      selections[questionCounter] = +$('input[name="answer"]:checked').val();
+    }
+    
+    // Displays next requested element
+    function displayNext() {
+      quiz.fadeOut(function() {
+        $('#question').remove();
+        
+        if(questionCounter < questions.length){
+          var nextQuestion = createQuestionElement(questionCounter);
+          quiz.append(nextQuestion).fadeIn();
+          if (!(isNaN(selections[questionCounter]))) {
+            $('input[value='+selections[questionCounter]+']').prop('checked', true);
+          }
+          
+          // Controls display of 'prev' button
+          if(questionCounter === 1){
+            $('#prev').show();
+          } else if(questionCounter === 0){
+            
+            $('#prev').hide();
+            $('#next').show();
+          }
+        }else {
+          var scoreElem = displayScore();
+          quiz.append(scoreElem).fadeIn();
+          $('#next').hide();
+          $('#prev').hide();
+          $('#start').show();
+        }
+      });
+    }
+    
+    // Computes score and returns a paragraph element to be displayed
+    function displayScore() {
+        $(this).removeClass('button hide')
+      var score = $('<p>',{id: 'question'});
+      
+      var numCorrect = 0;
+      for (var i = 0; i < selections.length; i++) {
+        if (selections[i] === questions[i].correctAnswer) {
+          numCorrect++;
+        }
+      }
+      
+      score.append('You got ' + numCorrect + ' questions out of ' +
+                   questions.length + ' right!!!');
+      return score;
+    }
+  })();
